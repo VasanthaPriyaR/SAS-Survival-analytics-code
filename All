@@ -1,0 +1,2495 @@
+4747  /***** Exploratory Data Analysis ********************/
+4748
+4749
+
+
+4750  data in.modified_ferma1;
+4751  set in.modified_ferma;
+4752
+4753  HoursWorkedDaily = DailyRate/HourlyRate;
+4754  HoursWokedMonthly = MonthlyRate/DailyRate;
+4755
+4756  /*** Correcting Turnover variable using Type ***/
+4757
+4758  if Type>0 then Turnover='Yes';
+4759  else Turnover='No';
+4760
+4761  /*** Creating Employee Experience category ***/
+4762
+4763  IF YearsAtCompany <= 5 THEN EmployeeType = 'Young';
+4764  ELSE EmployeeType = 'Experienced';
+4765
+4766  YearsBonusRewarded = SUM ( bonus_1 , bonus_2 , bonus_3 , bonus_4 , bonus_5 ,
+4767      bonus_6 , bonus_7 , bonus_8 , bonus_9   , bonus_10 ,
+4768      bonus_11 , bonus_12 , bonus_13  , bonus_14 , bonus_15 , bonus_16 ,
+4769      bonus_17 , bonus_18 , bonus_19 , bonus_20 , bonus_21 , bonus_22 ,
+4770      bonus_23 , bonus_24 , bonus_25 , bonus_26 , bonus_27 , bonus_28 ,
+4771      bonus_29 , bonus_30 , bonus_31 , bonus_32 , bonus_33 , bonus_34 ,
+4772      bonus_35 , bonus_36 , bonus_37 , bonus_38 , bonus_39 , bonus_40);
+4773
+4774  /*** Calculating Bonus Ratio per year with company ***/
+4775  BonusRewardRatio = ROUND ((YearsBonusRewarded/YearsAtCompany),0.1) ;
+4776
+4777
+4778  /**** Mapping of variables ***/
+4779
+4780  if environmentsatisfaction=4 then environment_satisfaction='a.Very High';
+4781  else if environmentsatisfaction=3 then environment_satisfaction='b.High';
+4782  else if environmentsatisfaction=2 then environment_satisfaction='c.Medium';
+4783  else if environmentsatisfaction=1 then environment_satisfaction='d.Low';
+4784
+4785  if jobinvolvement=4 then job_involvement='a.Very High';
+4786  else if jobinvolvement=3 then job_involvement='b.High';
+4787  else if jobinvolvement=2 then job_involvement='c.Medium';
+4788  else if jobinvolvement=1 then job_involvement='d.Low';
+4789
+4790  attrition_rsn='                ';
+4791  if type=0 then attrition_rsn='a. No_Turnover';
+4792  else if type=1 then attrition_rsn='b. Retirement';
+4793  else if type=2 then attrition_rsn='c. Voluntary';
+4794  else if type=3 then attrition_rsn='d. Personal';
+4795  else if type=4 then attrition_rsn='e. Fired';
+4796
+4797  run;
+
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      215 at 4766:22   215 at 4775:20   215 at 4775:46
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA.
+NOTE: The data set IN.MODIFIED_FERMA1 has 1470 observations and 86 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.31 seconds
+      cpu time            0.04 seconds
+
+
+4798
+4799  /**** Plotting of variables against Turnover and its types ***/
+4800
+4801  /* Business Travel vs Turnover */
+4802  PROC SGPLOT DATA = in.Modified_ferma1;
+4803  VBAR Turnover / GROUP = BusinessTravel;
+4804  TITLE 'Business Travel v/s Turnover';
+4805  RUN;
+
+NOTE: Writing HTML Body file: sashtml16.htm
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           1.19 seconds
+      cpu time            0.82 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4806
+4807  PROC SGPLOT DATA = in.Modified_ferma1;
+4808  VBAR Type / GROUP = BusinessTravel;
+4809  TITLE 'Business Travel v/s Turnover Types';
+4810  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4811
+4812  /* Education Field vs Turnover */
+4813  PROC SGPLOT DATA = in.Modified_ferma1;
+4814  VBAR EducationField / GROUP = Turnover;
+4815  TITLE 'Education Field v/s Turnover';
+4816  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4817
+4818  PROC SGPLOT DATA = in.Modified_ferma1;
+4819  VBAR EducationField / GROUP = Type;
+4820  TITLE 'Education Field v/s Turnover Types';
+4821  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4822
+4823  /* Distance From Home vs Turnover */
+4824  PROC SGPLOT DATA = in.Modified_ferma1;
+4825  VBAR Turnover / Response = DistanceFromHome stat=mean;
+4826  TITLE 'Distance from home v/s Turnover';
+4827  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4828
+4829  PROC SGPLOT DATA = in.Modified_ferma1;
+4830  VBAR Type / Response = DistanceFromHome stat=mean;
+4831  TITLE 'Distance from home v/s Turnover Types';
+4832  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4833
+4834  /* Department vs Turnover */
+4835  PROC SGPLOT DATA = in.Modified_ferma1;
+4836  VBAR Department / GROUP = Turnover;
+4837  TITLE 'Department v/s Turnover';
+4838  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4839
+4840  /* Daily rate vs Turnover */
+4841  PROC SGPLOT DATA = in.Modified_ferma1;
+4842  VBAR Turnover / Response = DailyRate stat=mean;
+4843  TITLE 'Daily Rate v/s Turnover';
+4844  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4845
+4846  PROC SGPLOT DATA = in.Modified_ferma1;
+4847  VBAR Type / Response = DailyRate stat=mean;
+4848  TITLE 'Daily Rate v/s Turnover Types';
+4849  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4850
+4851  /*** Grouping data by Employee Age and Turnover Type ***/
+4852
+4853  proc sql;
+4854  create table agetable as
+4855  select count(*) as tot, age,turnover,type
+4856  from in.modified_ferma
+4857  group by age,type;
+NOTE: The query requires remerging summary statistics back with the original data.
+NOTE: Table WORK.AGETABLE created, with 1470 rows and 4 columns.
+
+4858
+4859  /* Age vs Turnover */
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+
+
+4860  PROC SGPLOT DATA = agetable;
+4861  series x=age y=tot /group=turnover;
+4862  TITLE 'Age vs Total employees grouped by Turnover';
+4863  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.18 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set WORK.AGETABLE.
+
+4864
+4865  PROC SGPLOT DATA = agetable;
+4866  series x=age y=tot /group=type;
+4867  TITLE 'Age vs Total employees grouped by Turnover Types';
+4868  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.01 seconds
+
+NOTE: There were 1470 observations read from the data set WORK.AGETABLE.
+
+4869
+4870  /* Stock Option Level vs Turnover */
+4871  PROC FREQ DATA = in.Modified_ferma1;
+4872  TABLES Turnover * StockOptionLevel / CHISQ;
+4873  TITLE 'Turnover v/s stockoptionLevel';
+4874  RUN;
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.03 seconds
+
+
+4875
+4876  PROC SGPLOT DATA = in.Modified_ferma1;
+4877  VBAR Turnover/ GROUP = StockOptionLevel;
+4878  LABEL Turnover = 'Events of Turnover';
+4879  TITLE 'Turnover v/s stockoptionLevel';
+4880  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4881
+4882  PROC SGPLOT DATA = in.Modified_ferma1;
+4883  VBAR Type / GROUP = StockOptionLevel GROUPDISPLAY=cluster ;
+4884  LABEL Type = 'Events of Turnover';
+4885  TITLE 'Event types v/s stockoptionLevel';
+4886  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4887
+4888  /* Total Working Years vs Turnover */
+4889  PROC SGPLOT DATA = in.Modified_ferma1;
+4890  HISTOGRAM TotalWorkingYears/ SHOWBINS;
+4891  DENSITY TotalWorkingYears;
+4892  *DENSITY TotalWorkingYears/ TYPE = KERNEL;
+4893  TITLE 'Over TotalWorkingYears trend';
+4894  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.14 seconds
+      cpu time            0.07 seconds
+
+NOTE: Some of the tick values have been thinned.
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4895
+4896  PROC SGPLOT DATA = in.Modified_ferma1;
+4897  VBAR Turnover/ RESPONESE=TotalWorkingYears STAT= MEAN;
+                     ---------
+                     1
+WARNING 1-322: Assuming the symbol RESPONSE was misspelled as RESPONESE.
+4898  LABEL Turnover= 'Events of Turnover';
+4899  TITLE 'Turnover v/s TotalWorkingYears';
+4900  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4901
+4902  PROC SGPLOT DATA = in.Modified_ferma1;
+4903  VBOX TotalWorkingYears/ CATEGORY = Turnover;
+4904  TITLE 'TotalWorkingYears v/s Turnover';
+4905  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4906
+4907  PROC SGPLOT DATA = in.Modified_ferma1 (where=(Turnover = 'Yes'));
+4908  VBOX TotalWorkingYears/ CATEGORY = Type;
+4909  TITLE 'TotalWorkingYears v/s Event Type';
+4910  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 225 observations read from the data set IN.MODIFIED_FERMA1.
+      WHERE Turnover='Yes';
+
+4911
+4912  /* Training Times vs Turnover */
+4913  PROC SGPLOT DATA = in.Modified_ferma1;
+4914  VBAR Turnover / RESPONESE= TrainingTimesLastYear STAT=Mean;
+                      ---------
+                      1
+WARNING 1-322: Assuming the symbol RESPONSE was misspelled as RESPONESE.
+4915  LABEL Turnover = 'Events of Turnover';
+4916  TITLE 'Turnover  v/s TrainingTimesLastYear';
+4917  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4918
+4919  PROC SGPLOT DATA = in.Modified_ferma1;
+4920  VBAR Type / RESPONESE= TrainingTimesLastYear STAT=Mean;
+                  ---------
+                  1
+WARNING 1-322: Assuming the symbol RESPONSE was misspelled as RESPONESE.
+4921  LABEL Type= 'Events of Turnover';
+4922  TITLE 'Types v/s TrainingTimesLastYear';
+4923  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4924
+4925  /* Work Life Balance vs Turnover */
+4926  PROC FREQ DATA = in.Modified_ferma1;
+4927  TABLES Turnover * WorkLifeBalance / CHISQ;
+4928  RUN;
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.03 seconds
+
+
+4929
+4930  PROC SGPLOT DATA = in.Modified_ferma1;
+4931  VBAR Turnover/ GROUP = WorkLifeBalance;
+4932  LABEL Turnover= 'Events of Turnover';
+4933  TITLE ' Turnover v/s WorkLifeBalance';
+4934  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4935
+4936  PROC SGPLOT DATA = in.Modified_ferma1 (where=(Turnover = 'Yes'));
+4937  VBAR Type / GROUP = WorkLifeBalance GROUPDISPLAY=cluster;
+4938  LABEL Type = 'Events of Turnover';
+4939  TITLE 'Event types v/s WorkLifeBalance ';
+4940  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 225 observations read from the data set IN.MODIFIED_FERMA1.
+      WHERE Turnover='Yes';
+
+4941
+4942  /* Years at Company vs Turnover */
+4943  PROC SGPLOT DATA = in.Modified_ferma1;
+4944  VBAR Turnover / RESPONSE= YearsAtCompany STAT=mean  ;
+4945  LABEL Turnover = 'Events of Turnover';
+4946  TITLE 'Turnover v/s YearsAtCompany ';
+4947  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4948
+4949  PROC SGPLOT DATA = in.Modified_ferma1;
+4950  VBAR Type / RESPONSE= YearsAtCompany STAT=mean  ;
+4951  LABEL Type = 'Events of Turnover';
+4952  TITLE 'Event types v/s YearsAtCompany ';
+4953  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4954
+4955  PROC SGPLOT DATA = in.Modified_ferma1;
+4956  VBOX YearsAtCompany/ CATEGORY = Turnover;
+4957  TITLE 'YearsAtCompany v/s Turnover';
+4958  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4959
+4960  PROC SGPLOT DATA = in.Modified_ferma1 (where=(Turnover = 'Yes'));
+4961  VBOX YearsAtCompany/ CATEGORY = Type;
+4962  TITLE 'YearsAtCompany v/s Event Type';
+4963  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 225 observations read from the data set IN.MODIFIED_FERMA1.
+      WHERE Turnover='Yes';
+
+4964
+4965  PROC UNIVARIATE DATA = in.Modified_ferma1 (where=(Turnover = 'Yes'));
+4966  VAR YearsAtCompany ;
+4967  HISTOGRAM YearsAtCompany /NORMAL;
+4968  PROBPLOT YearsAtCompany ;
+4969  TITLE'YearsAtCompany ';
+4970  RUN;
+
+NOTE: PROCEDURE UNIVARIATE used (Total process time):
+      real time           1.26 seconds
+      cpu time            0.87 seconds
+
+
+4971
+4972  /* Years In Current Role vs Turnover */
+4973  PROC SGPLOT DATA = in.Modified_ferma1;
+4974  VBAR Turnover / RESPONSE= YearsInCurrentRole STAT=mean  ;
+4975  TITLE 'Event types v/s YearsInCurrentRole ';
+4976  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4977
+4978  PROC SGPLOT DATA = in.Modified_ferma1;
+4979  VBAR Type / RESPONSE= YearsInCurrentRole STAT=mean  ;
+4980  LABEL Type = 'Events of Turnover';
+4981  TITLE 'Event types v/s YearsInCurrentRole ';
+4982  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4983
+4984  /* Years at Company vs Years In Current Role by Turnover Types */
+4985  PROC SGPLOT DATA = in.Modified_ferma1;
+4986  SCATTER X = YearsAtCompany Y = YearsInCurrentRole/ GROUP=Type ;
+4987  XAXIS LABEL = 'YearsAtCompany ' VALUES = (0 TO 40 BY 5);
+4988  YAXIS LABEL = 'YearsInCurrentRole' VALUES = (0 TO 40 BY 5);
+4989  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4990
+4991  /* Years Since Last Promotion vs Turnover */
+4992  PROC SGPLOT DATA = in.Modified_ferma1;
+4993  VBAR Turnover / RESPONSE= YearsSinceLastPromotion STAT=mean  ;
+4994  LABEL Type = 'Events of Turnover';
+4995  TITLE 'Event types v/s YearsSinceLastPromotion ';
+4996  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+4997
+4998  PROC SGPLOT DATA = in.Modified_ferma1;
+4999  VBAR Type / RESPONSE= YearsSinceLastPromotion STAT=mean  ;
+5000  LABEL Type = 'Events of Turnover';
+5001  TITLE 'Event types v/s YearsSinceLastPromotion ';
+5002  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5003
+5004  /* Years With Current Manager vs Turnover */
+5005  PROC SGPLOT DATA = in.Modified_ferma1;
+5006  VBAR Turnover / RESPONSE= YearsWithCurrManager STAT=mean  ;
+5007  LABEL Type = 'Events of Turnover';
+5008  TITLE 'Event types v/s YearsWithCurrManager ';
+5009  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5010
+5011  PROC SGPLOT DATA = in.Modified_ferma1;
+5012  VBAR Type / RESPONSE= YearsWithCurrManager STAT=mean  ;
+5013  LABEL Type = 'Events of Turnover';
+5014  TITLE 'Event types v/s YearsWithCurrManager ';
+5015  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.03 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5016
+5017  /* Bonus Ratio vs Turnover */
+5018
+5019  PROC SGPLOT DATA = in.Modified_ferma1;
+5020  VBAR Type/ GROUP= BonusRewardRatio GROUPDISPLAY=cluster  ;
+5021  LABEL Type = 'Events of Turnover';
+5022  TITLE 'Event types v/s BonusRewardRatio ';
+5023  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.03 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5024
+5025  /*
+5026  Creating Covariance and Correlation Matrices for Duration variables -
+5027  Total Working Years
+5028  Years at Company
+5029  Years in Current Role
+5030  Years since Last Promotion
+5031  Years with Current Manager
+5032  */
+5033
+5034  proc corr data=in.Modified_ferma1 noprob outp=OutCorr /** store results **/
+5035            nomiss /** listwise deletion of missing values **/
+5036            cov;   /**  include covariances **/
+5037  var TotalWorkingYears YearsAtCompany YearsInCurrentRole YearsSinceLastPromotion
+5037! YearsWithCurrManager;
+5038  run;
+
+NOTE: The data set WORK.OUTCORR has 13 observations and 7 variables.
+NOTE: PROCEDURE CORR used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+5039
+5040  /* Over18 Indicator vs Turnover */
+5041  PROC FREQ DATA = in.Modified_ferma1;
+5042  TABLES TURNOVER*Over18 / CHISQ;
+5043  TITLE 'Turnover vs Over18';
+5044  RUN;
+
+NOTE: No statistics are computed for Turnover * Over18 since Over18 has less than 2 nonmissing
+      levels.
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+5045
+5046  PROC SGPLOT DATA = in.Modified_ferma1;
+5047  VBAR Turnover/ GROUP = Over18;
+5048  TITLE 'Turnover vs Over18';
+5049  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5050
+5051  PROC SGPLOT DATA = in.Modified_ferma1 ;
+5052  VBAR Type / GROUP = Over18 GROUPDISPLAY=cluster ;
+5053  TITLE 'Types of Turnover vs Over18';
+5054  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5055
+5056  /* Over Time vs Turnover*/
+5057  PROC FREQ DATA = in.Modified_ferma1;
+5058  TABLES TURNOVER*OverTime / CHISQ;
+5059  TITLE 'Turnover vs OverTime';
+5060  RUN;
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.01 seconds
+
+
+5061
+5062  PROC SGPLOT DATA = in.Modified_ferma1;
+5063  VBAR Turnover/ GROUP = OverTime;
+5064  TITLE 'Turnover vs OverTime';
+5065  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5066
+5067  PROC SGPLOT DATA = in.Modified_ferma1 ;
+5068  VBAR Type / GROUP = OverTime GROUPDISPLAY=cluster ;
+5069  TITLE 'Types of Turnover vs OverTime';
+5070  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5071
+5072  /* Number of companies worked vs Turnover */
+5073  PROC FREQ DATA = in.Modified_ferma1;
+5074  TABLES TURNOVER*NumCompaniesWorked / CHISQ;
+5075  TITLE 'Turnover vs Number of companies worked';
+5076  RUN;
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.03 seconds
+
+
+5077
+5078  PROC SGPLOT DATA = in.Modified_ferma1;
+5079  VBAR Turnover/ GROUP = NumCompaniesWorked;
+5080  TITLE 'Turnover vs Number of companies worked';
+5081  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5082
+5083  PROC SGPLOT DATA = in.Modified_ferma1 ;
+5084  VBAR Type / GROUP = NumCompaniesWorked GROUPDISPLAY=cluster ;
+5085  TITLE 'Types of Turnover vs Number of companies worked';
+5086  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5087
+5088  /* Relationship Satisfaction vs Turnover */
+5089  PROC FREQ DATA = in.Modified_ferma1;
+5090  TABLES TURNOVER*RelationshipSatisfaction / CHISQ;
+5091  TITLE 'Turnover vs Relationship Satisfaction';
+5092  RUN;
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.03 seconds
+
+
+5093
+5094  PROC SGPLOT DATA = in.Modified_ferma1;
+5095  VBAR Turnover/ GROUP = RelationshipSatisfaction;
+5096  TITLE 'Turnover vs Relationship Satisfaction';
+5097  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5098
+5099  PROC SGPLOT DATA = in.Modified_ferma1 ;
+5100  VBAR Type / GROUP = RelationshipSatisfaction GROUPDISPLAY=cluster ;
+5101  TITLE 'Types of Turnover vs RelationshipSatisfaction';
+5102  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5103
+5104  /* Performance Rating vs Turnover*/
+5105  PROC FREQ DATA = in.Modified_ferma1;
+5106  TABLES TURNOVER*PerformanceRating / CHISQ;
+5107  TITLE 'Turnover vs Performance Rating';
+5108  RUN;
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.03 seconds
+
+
+5109
+5110  PROC SGPLOT DATA = in.Modified_ferma1;
+5111  VBAR Turnover/ GROUP = PerformanceRating;
+5112  TITLE 'Turnover vs  Performance Rating';
+5113  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5114
+5115  PROC SGPLOT DATA = in.Modified_ferma1 ;
+5116  VBAR Type / GROUP =PerformanceRating GROUPDISPLAY=cluster ;
+5117  TITLE 'Types of Turnover vs Performance Rating';
+5118  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5119
+5120  /* Standard Working Hours vs Turnover*/
+5121  PROC FREQ DATA = in.Modified_ferma1;
+5122  TABLES TURNOVER*StandardHours / CHISQ;
+5123  TITLE 'Turnover vs Standard Working Hours';
+5124  RUN;
+
+NOTE: No statistics are computed for Turnover * StandardHours since StandardHours has less than 2
+      nonmissing levels.
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+5125
+5126  PROC SGPLOT DATA = in.Modified_ferma1;
+5127  VBAR Turnover/ GROUP = StandardHours;
+5128  TITLE 'Turnover vs Standard Working Hours';
+5129  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5130
+5131  PROC SGPLOT DATA = in.Modified_ferma1 ;
+5132  VBAR Type / GROUP =StandardHours GROUPDISPLAY=cluster ;
+5133  TITLE 'Types of Turnover vs Standard Working Hours';
+5134  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5135
+5136  /* Correlation of Income, Rate and Salary Hike with Types of Turnover*/
+5137  PROC CORR DATA= in.Modified_ferma1 Plots=matrix(histogram);
+5138  VAR MonthlyIncome MonthlyRate PercentSalaryHike;
+5139  WITH TYPE ;
+5140  TITLE ' Correlation with Types of Turnover';
+5141  RUN;
+
+NOTE: The HISTOGRAM option within the PLOTS=MATRIX option is not applicable with the WITH
+      statement.
+NOTE: PROCEDURE CORR used (Total process time):
+      real time           0.30 seconds
+      cpu time            0.06 seconds
+
+
+5142
+5143  /* Monthly Income vs Turnover*/
+5144      /*Bar Graph*/
+5145  PROC SGPLOT DATA = in.Modified_ferma1;
+5146  VBAR Turnover / RESPONSE= MonthlyIncome STAT=mean  ;
+5147  TITLE 'Turnover vs  Monthly Income ';
+5148  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5149
+5150  PROC SGPLOT DATA = in.Modified_ferma1;
+5151  VBAR Type / RESPONSE= MonthlyIncome STAT=mean  ;
+5152  TITLE 'Types of Turnover vs  Monthly Income ';
+5153  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.03 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5154
+5155      /*Box Plot*/
+5156  PROC SGPLOT DATA =  in.Modified_ferma1;
+5157  VBOX  MonthlyIncome/ CATEGORY = Turnover;
+5158  TITLE ' Monthly Income vs Turnover';
+5159  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5160
+5161  PROC SGPLOT DATA = in.Modified_ferma1;
+5162  VBOX  MonthlyIncome/ CATEGORY = Type;
+5163  TITLE ' Monthly Income vs Types of Turnover';
+5164  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.18 seconds
+      cpu time            0.06 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5165
+5166  /* Monthly Rate vs Turnover*/
+5167  PROC SGPLOT DATA = in.Modified_ferma1;
+5168  VBAR Turnover / RESPONSE=  MonthlyRate STAT=mean  ;
+5169  TITLE 'Turnover vs  Monthly Rate ';
+5170  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.03 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5171
+5172  PROC SGPLOT DATA = in.Modified_ferma1;
+5173  VBAR Type / RESPONSE=  MonthlyRate STAT=mean  ;
+5174  TITLE 'Types of Turnover vs  Monthly Rate ';
+5175  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5176
+5177  /* Percentage Salary Hike vs Turnover*/
+5178  PROC SGPLOT DATA = in.Modified_ferma1;
+5179  VBAR Turnover / RESPONSE= PercentSalaryHike STAT=mean  ;
+5180  TITLE 'Turnover vs Percentage Salary Hike ';
+5181  RUN;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5182
+5183  PROC SGPLOT DATA = in.Modified_ferma1;
+5184  VBAR Type / RESPONSE= PercentSalaryHike STAT=mean  ;
+5185  TITLE 'Types of Turnover vs Percentage Salary Hike ';
+5186  RUN;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.04 seconds
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+
+5187
+5188  /**** Percentile distribution of Employee Number, Hourly Rate, Job Level and Job
+5188! Satisfaction ***/
+5189  proc means data = in.Modified_ferma1 mean p25 p50 p75 min max maxdec=1;
+5190  var EmployeeNumber HourlyRate JobLevel JobSatisfaction Age MonthlyIncome DistanceFromHome;
+5191  title 'Mean analysis at overall data';
+5192  run;
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+5193
+5194  /***
+5195  Creating variable buckets : 0-p25, p25-p50, p50-p75, p75-p100
+5196  EmployeeNumber :    <=500, 500-1000,    1000-1500,  >1500
+5197  HourlyRate :        <=50,   50-65,      65-85,      >85
+5198  Age:                <=30,   31-35,      36-45,      >45
+5199  Income:             <=3000, 3000-5000,  5000-8500,  >8500
+5200  DistfromHome:       <=2,    3-7,        8-14,       >=15
+5201
+5202  Job level is already categorical from 1 to 5
+5203  Job Satisfaction is also categorical from 1 to 4
+5204  ***/
+5205
+5206  /**** Frequency analysis of categorical variables to understand distribution ***/
+5207  proc freq data =in.Modified_ferma1;
+5208  tables JobLevel JobSatisfaction environment_satisfaction job_involvement Gender JobRole
+5208! MaritalStatus / norow nocol nopct;
+5209  title 'Frequency of categorical variables';
+5210  run;
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+
+
+5211
+5212  data in.Modified_ferma1;
+5213  set in.Modified_ferma1;
+5214
+5215  ID='               ';
+5216  if EmployeeNumber<=500 then ID='a. <=500';
+5217  else if EmployeeNumber<=1000 then ID='b. 500-1000';
+5218  else if EmployeeNumber<=1500 then ID='c. 1000-1500';
+5219  else ID='d. >1500';
+5220
+5221  Hourly_rate='             ';
+5222  if HourlyRate<=50 then Hourly_rate='a. <=50';
+5223  else if HourlyRate<=65 then Hourly_rate='b. 50-65';
+5224  else if HourlyRate<=85 then Hourly_rate='c. 65-85';
+5225  else Hourly_rate='d. >85';
+5226
+5227  AgeBucket='             ';
+5228  if Age<=30 then AgeBucket='a. <=30';
+5229  else if Age<=35 then AgeBucket='b. 31-35';
+5230  else if Age<=45 then AgeBucket='c. 36-45';
+5231  else AgeBucket='d. >=46';
+5232
+5233  IncomeBucket='             ';
+5234  if MonthlyIncome<=3000 then IncomeBucket='a. <=3K';
+5235  else if MonthlyIncome<=5000 then IncomeBucket='b. 3K-5K';
+5236  else if MonthlyIncome<=8500 then IncomeBucket='c. 5K-8.5K';
+5237  else IncomeBucket='d. >=8.5K';
+5238
+5239  DistanceFromHomeBucket='             ';
+5240  if DistanceFromHome<=2 then DistanceFromHomeBucket='a. <=2';
+5241  else if DistanceFromHome<=7 then DistanceFromHomeBucket='b. 3-7';
+5242  else if DistanceFromHome<=14 then DistanceFromHomeBucket='c. 8-14';
+5243  else DistanceFromHomeBucket='d. >=15';
+5244
+5245  run;
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+NOTE: The data set IN.MODIFIED_FERMA1 has 1470 observations and 91 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.03 seconds
+
+
+5246
+5247  /*** Percentage Bar Charts of Variables vs Turnover Event ***/
+5248
+5249  proc freq data=in.Modified_ferma1 order=freq;
+5250  tables
+5251  turnover*ID
+5252  turnover*environment_satisfaction
+5253  turnover*Gender
+5254  turnover*Hourly_rate
+5255  turnover*job_involvement
+5256  turnover*JobLevel
+5257  turnover*JobRole
+5258  turnover*JobSatisfaction
+5259  turnover*MaritalStatus
+5260  / plots=freqplot(twoway=stacked scale=grouppct);
+5261  run;
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.76 seconds
+      cpu time            0.37 seconds
+
+
+5262
+5263  /*** Percentage Bar Charts of Variables vs Turnover Reason when Turnover event occurs ***/
+5264
+5265  proc freq data=in.Modified_ferma1 (where=(turnover='Yes')) order=freq;
+5266  tables
+5267  attrition_rsn*ID
+5268  attrition_rsn*environment_satisfaction
+5269  attrition_rsn*Gender
+5270  attrition_rsn*Hourly_rate
+5271  attrition_rsn*job_involvement
+5272  attrition_rsn*JobLevel
+5273  attrition_rsn*JobRole
+5274  attrition_rsn*JobSatisfaction
+5275  attrition_rsn*MaritalStatus
+5276  / plots=freqplot(twoway=stacked scale=grouppct);
+5277  run;
+
+NOTE: There were 225 observations read from the data set IN.MODIFIED_FERMA1.
+      WHERE turnover='Yes';
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.78 seconds
+      cpu time            0.42 seconds
+
+
+5278
+5279  data in.Modified_ferma1 (drop=Turnover);
+5280  set in.Modified_ferma1;
+5281
+5282  IF Turnover='Yes' then Turn=1 ;
+5283  ELSE Turn=0;
+5284
+5285  run;
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+NOTE: The data set IN.MODIFIED_FERMA1 has 1470 observations and 91 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.00 seconds
+
+
+5286
+5287  data in.Modified_ferma2 (drop=Turn);
+5288  set in.Modified_ferma1;
+5289
+5290  Turnover=Turn;
+5291  run;
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA1.
+NOTE: The data set IN.MODIFIED_FERMA2 has 1470 observations and 91 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.00 seconds
+
+
+5292
+5293  /* Is there any difference in attrition between different employee groups or categories? */
+5294  PROC LIFETEST DATA=in.Modified_ferma2;
+5295      TIME YearsAtCompany*Turnover(0);
+5296      STRATA EnvironmentSatisfaction;
+5297  RUN;
+
+NOTE: The LOGLOG transform is used to compute the confidence limits for the quartiles of the
+      survivor distribution. To suppress using this transform, specify CONFTYPE=LINEAR in the
+      PROC LIFETEST statement.
+NOTE: PROCEDURE LIFETEST used (Total process time):
+      real time           3.98 seconds
+      cpu time            2.93 seconds
+
+
+5298  PROC LIFETEST DATA=in.Modified_ferma2;
+5299      TIME YearsAtCompany*Turnover(0);
+5300      STRATA JobInvolvement;
+5301  RUN;
+
+NOTE: The LOGLOG transform is used to compute the confidence limits for the quartiles of the
+      survivor distribution. To suppress using this transform, specify CONFTYPE=LINEAR in the
+      PROC LIFETEST statement.
+NOTE: PROCEDURE LIFETEST used (Total process time):
+      real time           4.00 seconds
+      cpu time            2.85 seconds
+
+
+5302  PROC LIFETEST DATA=in.Modified_ferma2;
+5303      TIME YearsAtCompany*Turnover(0);
+5304      STRATA JobSatisfaction;
+5305  RUN;
+
+NOTE: The LOGLOG transform is used to compute the confidence limits for the quartiles of the
+      survivor distribution. To suppress using this transform, specify CONFTYPE=LINEAR in the
+      PROC LIFETEST statement.
+NOTE: PROCEDURE LIFETEST used (Total process time):
+      real time           3.94 seconds
+      cpu time            2.92 seconds
+
+
+5306  PROC LIFETEST DATA=in.Modified_ferma2;
+5307      TIME YearsAtCompany*Turnover(0);
+5308      STRATA NumCompaniesWorked;
+5309  RUN;
+
+NOTE: The LOGLOG transform is used to compute the confidence limits for the quartiles of the
+      survivor distribution. To suppress using this transform, specify CONFTYPE=LINEAR in the
+      PROC LIFETEST statement.
+NOTE: PROCEDURE LIFETEST used (Total process time):
+      real time           4.10 seconds
+      cpu time            3.03 seconds
+
+
+5310  PROC LIFETEST DATA=in.Modified_ferma2 METHOD=LIFE;
+5311      TIME YearsAtCompany*Turnover(0);
+5312      STRATA TotalWorkingYears;
+5313  RUN;
+
+NOTE: The LOGLOG transform is used to compute the confidence limits for the quartiles of the
+      survivor distribution. To suppress using this transform, specify CONFTYPE=LINEAR in the
+      PROC LIFETEST statement.
+WARNING: The likelihood ratio test for strata homogeneity is questionable since some strata have
+         no events.
+NOTE: The likelihood ratio statistic for strata homogeneity was not computed because at least one
+      stratum has a total time of zero.
+NOTE: Some graph legends have been dropped due to size constraints. Try adjusting the
+      MAXLEGENDAREA=, WIDTH= and HEIGHT= options in the ODS GRAPHICS statement.
+NOTE: PROCEDURE LIFETEST used (Total process time):
+      real time           1.61 seconds
+      cpu time            1.15 seconds
+
+
+5314  PROC LIFETEST DATA=in.Modified_ferma2;
+5315      TIME YearsAtCompany*Turnover(0);
+5316      STRATA StockOptionLevel;
+5317  RUN;
+
+NOTE: The LOGLOG transform is used to compute the confidence limits for the quartiles of the
+      survivor distribution. To suppress using this transform, specify CONFTYPE=LINEAR in the
+      PROC LIFETEST statement.
+NOTE: PROCEDURE LIFETEST used (Total process time):
+      real time           4.00 seconds
+      cpu time            2.96 seconds
+
+
+5318  PROC LIFETEST DATA=in.Modified_ferma2;
+5319      TIME YearsAtCompany*Turnover(0);
+5320      STRATA TrainingTimesLastYear;
+5321  RUN;
+
+NOTE: The LOGLOG transform is used to compute the confidence limits for the quartiles of the
+      survivor distribution. To suppress using this transform, specify CONFTYPE=LINEAR in the
+      PROC LIFETEST statement.
+NOTE: PROCEDURE LIFETEST used (Total process time):
+      real time           4.00 seconds
+      cpu time            3.03 seconds
+
+
+5322  PROC LIFETEST DATA=in.Modified_ferma2;
+5323      TIME YearsAtCompany*Turnover(0);
+5324      STRATA YearsInCurrentRole;
+5325  RUN;
+
+NOTE: The LOGLOG transform is used to compute the confidence limits for the quartiles of the
+      survivor distribution. To suppress using this transform, specify CONFTYPE=LINEAR in the
+      PROC LIFETEST statement.
+WARNING: The likelihood ratio test for strata homogeneity is questionable since some strata have
+         no events.
+NOTE: PROCEDURE LIFETEST used (Total process time):
+      real time           4.09 seconds
+      cpu time            3.17 seconds
+
+
+5326  PROC LIFETEST DATA=in.Modified_ferma2;
+5327      TIME YearsAtCompany*Turnover(0);
+5328      STRATA YearsWithCurrManager;
+5329  RUN;
+
+NOTE: The LOGLOG transform is used to compute the confidence limits for the quartiles of the
+      survivor distribution. To suppress using this transform, specify CONFTYPE=LINEAR in the
+      PROC LIFETEST statement.
+WARNING: The likelihood ratio test for strata homogeneity is questionable since some strata have
+         no events.
+NOTE: PROCEDURE LIFETEST used (Total process time):
+      real time           4.11 seconds
+      cpu time            3.15 seconds
+
+
+5330  PROC LIFETEST DATA=in.Modified_ferma2;
+5331      TIME YearsAtCompany*Turnover(0);
+5332      STRATA BonusRewardRatio;
+5333  RUN;
+
+NOTE: The LOGLOG transform is used to compute the confidence limits for the quartiles of the
+      survivor distribution. To suppress using this transform, specify CONFTYPE=LINEAR in the
+      PROC LIFETEST statement.
+NOTE: 215 observations with invalid time, censoring, or strata values were deleted.
+NOTE: PROCEDURE LIFETEST used (Total process time):
+      real time           3.96 seconds
+      cpu time            2.79 seconds
+
+
+5334  PROC LIFETEST DATA=in.Modified_ferma2;
+5335      TIME YearsAtCompany*Turnover(0);
+5336      STRATA BusinessTravel;
+5337  RUN;
+
+NOTE: The LOGLOG transform is used to compute the confidence limits for the quartiles of the
+      survivor distribution. To suppress using this transform, specify CONFTYPE=LINEAR in the
+      PROC LIFETEST statement.
+NOTE: PROCEDURE LIFETEST used (Total process time):
+      real time           3.94 seconds
+      cpu time            2.93 seconds
+
+
+5338  PROC LIFETEST DATA=in.Modified_ferma2 PLOT=S(NOCENSOR);
+5339      TIME YearsAtCompany*Turnover(0);
+5340      STRATA EducationField;
+5341  RUN;
+
+NOTE: The LOGLOG transform is used to compute the confidence limits for the quartiles of the
+      survivor distribution. To suppress using this transform, specify CONFTYPE=LINEAR in the
+      PROC LIFETEST statement.
+NOTE: PROCEDURE LIFETEST used (Total process time):
+      real time           3.97 seconds
+      cpu time            3.17 seconds
+
+
+5342  PROC LIFETEST DATA=in.Modified_ferma2;
+5343      TIME YearsAtCompany*Turnover(0);
+5344      STRATA MaritalStatus;
+5345  RUN;
+
+NOTE: The LOGLOG transform is used to compute the confidence limits for the quartiles of the
+      survivor distribution. To suppress using this transform, specify CONFTYPE=LINEAR in the
+      PROC LIFETEST statement.
+NOTE: PROCEDURE LIFETEST used (Total process time):
+      real time           3.96 seconds
+      cpu time            3.03 seconds
+
+
+5346  PROC LIFETEST DATA=in.Modified_ferma2 PLOTS=S(NOCENSOR);
+5347      TIME YearsAtCompany*Turnover(0);
+5348      STRATA OverTime;
+5349  RUN;
+
+NOTE: The LOGLOG transform is used to compute the confidence limits for the quartiles of the
+      survivor distribution. To suppress using this transform, specify CONFTYPE=LINEAR in the
+      PROC LIFETEST statement.
+NOTE: PROCEDURE LIFETEST used (Total process time):
+      real time           3.98 seconds
+      cpu time            2.90 seconds
+
+
+5350
+5351  /* Can I combine different event types together? Or do all need to be handled separately? */
+5352
+5353  /* Is hazard function equal for all event types? */
+5354  PROC FREQ data=in.Modified_ferma2;
+5355      WHERE type ne 0;
+5356      TABLES type /chisq;
+5357  RUN;
+
+NOTE: There were 225 observations read from the data set IN.MODIFIED_FERMA2.
+      WHERE type not = 0;
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.37 seconds
+      cpu time            0.17 seconds
+
+
+5358
+5359  /* Are type hazards linearly related? */
+5360  DATA retire;
+5361      SET in.Modified_ferma2;
+5362      event=(Type=1);
+5363
+5364      /*this is for censoring out other types, another way to write if statement*/
+5365      reason='retired';
+5366
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA2.
+NOTE: The data set WORK.RETIRE has 1470 observations and 93 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+
+
+5367  DATA volun;
+5368      SET in.Modified_ferma2;
+5369      event=(Type=2);
+5370      reason='voluntary';
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA2.
+NOTE: The data set WORK.VOLUN has 1470 observations and 93 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+
+
+5371  DATA involun;
+5372      SET in.Modified_ferma2;
+5373      event=(Type=3);
+5374      reason='involuntary';
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA2.
+NOTE: The data set WORK.INVOLUN has 1470 observations and 93 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+
+
+5375  DATA fired;
+5376      SET in.Modified_ferma2;
+5377      event=(Type=4);
+5378      reason='fired';
+5379
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA2.
+NOTE: The data set WORK.FIRED has 1470 observations and 93 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+
+
+5380  DATA combine;
+5381      /*we combined the datasets to use them as strata in the graphical analysis*/
+5382      SET retire volun involun fired;
+5383
+
+WARNING: Multiple lengths were specified for the variable reason by input data set(s). This can
+         cause truncation of data.
+NOTE: There were 1470 observations read from the data set WORK.RETIRE.
+NOTE: There were 1470 observations read from the data set WORK.VOLUN.
+NOTE: There were 1470 observations read from the data set WORK.INVOLUN.
+NOTE: There were 1470 observations read from the data set WORK.FIRED.
+NOTE: The data set WORK.COMBINE has 5880 observations and 93 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+5384  PROC LIFETEST DATA=COMBINE PLOTS=LLS;
+5385      /*LLS plot is requested*/
+5386      TIME YearsAtCompany*event(0);
+5387      STRATA reason /diff=all;
+5388  RUN;
+
+NOTE: The LOGLOG transform is used to compute the confidence limits for the quartiles of the
+      survivor distribution. To suppress using this transform, specify CONFTYPE=LINEAR in the
+      PROC LIFETEST statement.
+NOTE: PROCEDURE LIFETEST used (Total process time):
+      real time           6.31 seconds
+      cpu time            4.75 seconds
+
+
+5389
+5390
+5391  /*Test whether coefficients found for each event type is equal to
+5392  coefficients found for the model created when no distinction made between types*/
+5393  /*IF YES, we don't use the event types to model the data. If there is a difference
+5394  then we need to create models for each event type. */
+5395
+5396  DATA in.Modified_ferma2;
+5397  SET in.Modified_ferma2;
+5398
+5399      IF MaritalStatus="Divorce" THEN
+5400          MaritalStatus_LE=1;
+5401      ELSE IF MaritalStatus="Single" THEN
+5402          MaritalStatus_LE=2;
+5403      ELSE
+5404          MaritalStatus_LE=3;
+5405              Int_CurrMgr=YearsWithCurrManager * YearsAtCompany;
+5406      Int_CurrRole=YearsInCurrentRole * YearsAtCompany;
+5407      Int_TotWork=TotalWorkingYears * YearsAtCompany;
+5408      Int_MarStat=MaritalStatus_LE * YearsAtCompany;
+5409  RUN;
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA2.
+NOTE: The data set IN.MODIFIED_FERMA2 has 1470 observations and 96 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.00 seconds
+
+
+5410
+5411  /* Adding Interaction variables */
+5412  PROC PHREG DATA=in.Modified_ferma2;
+5413      CLASS BusinessTravel Department EducationField JobRole MaritalStatus
+5414          AgeBucket IncomeBucket Gender(ref='Female') OverTime(ref='No')
+5415          DistanceFromHomeBucket EmployeeType;
+5416      MODEL YearsAtCompany*Type(0)=Age DailyRate DistanceFromHome Education
+5417          EnvironmentSatisfaction HourlyRate JobInvolvement JobLevel
+5418          JobSatisfaction MonthlyIncome MonthlyRate NumCompaniesWorked
+5419          PercentSalaryHike PerformanceRating RelationshipSatisfaction
+5420          StockOptionLevel TotalWorkingYears TrainingTimesLastYear
+5421          WorkLifeBalance YearsInCurrentRole YearsSinceLastPromotion
+5422          YearsWithCurrManager HoursWorkedDaily HoursWokedMonthly BusinessTravel
+5423          Department EducationField JobRole MaritalStatus AgeBucket Int_CurrMgr
+5424          Int_CurrRole Int_TotWork Int_MarStat IncomeBucket Gender OverTime
+5425          DistanceFromHomeBucket EmployeeType;
+5426
+5427  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           0.16 seconds
+      cpu time            0.12 seconds
+
+
+5428
+5429  PROC PHREG DATA=in.Modified_ferma2;
+5430      CLASS BusinessTravel Department EducationField JobRole MaritalStatus
+5431          AgeBucket IncomeBucket Gender(ref='Female') OverTime(ref='No')
+5432          DistanceFromHomeBucket EmployeeType;
+5433      MODEL YearsAtCompany*Type(0, 2, 3, 4)=Age DailyRate DistanceFromHome
+5434          Education EnvironmentSatisfaction HourlyRate JobInvolvement JobLevel
+5435          JobSatisfaction MonthlyIncome MonthlyRate NumCompaniesWorked
+5436          PercentSalaryHike PerformanceRating RelationshipSatisfaction
+5437          StockOptionLevel TotalWorkingYears TrainingTimesLastYear
+5438          WorkLifeBalance YearsInCurrentRole YearsSinceLastPromotion
+5439          YearsWithCurrManager HoursWorkedDaily HoursWokedMonthly BusinessTravel
+5440          Department EducationField JobRole MaritalStatus AgeBucket Int_CurrMgr
+5441          Int_CurrRole Int_TotWork Int_MarStat IncomeBucket Gender OverTime
+5442          DistanceFromHomeBucket EmployeeType;
+5443  RUN;
+
+WARNING: Convergence was not attained in 25 iterations.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           0.24 seconds
+      cpu time            0.23 seconds
+
+
+5444
+5445  PROC PHREG DATA=in.Modified_ferma2;
+5446      CLASS BusinessTravel Department EducationField JobRole MaritalStatus
+5447          AgeBucket IncomeBucket Gender(ref='Female') OverTime(ref='No')
+5448          DistanceFromHomeBucket EmployeeType;
+5449      MODEL YearsAtCompany*Type(0, 1, 3, 4)=Age DailyRate DistanceFromHome
+5450          Education EnvironmentSatisfaction HourlyRate JobInvolvement JobLevel
+5451          JobSatisfaction MonthlyIncome MonthlyRate NumCompaniesWorked
+5452          PercentSalaryHike PerformanceRating RelationshipSatisfaction
+5453          StockOptionLevel TotalWorkingYears TrainingTimesLastYear
+5454          WorkLifeBalance YearsInCurrentRole YearsSinceLastPromotion
+5455          YearsWithCurrManager HoursWorkedDaily HoursWokedMonthly BusinessTravel
+5456          Department EducationField JobRole MaritalStatus AgeBucket Int_CurrMgr
+5457          Int_CurrRole Int_TotWork Int_MarStat IncomeBucket Gender OverTime
+5458          DistanceFromHomeBucket EmployeeType;
+5459  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           0.15 seconds
+      cpu time            0.14 seconds
+
+
+5460
+5461  PROC PHREG DATA=in.Modified_ferma2;
+5462      CLASS BusinessTravel Department EducationField JobRole MaritalStatus
+5463          AgeBucket IncomeBucket Gender(ref='Female') OverTime(ref='No')
+5464          DistanceFromHomeBucket EmployeeType;
+5465      MODEL YearsAtCompany*Type(0, 1, 2, 4)=Age DailyRate DistanceFromHome
+5466          Education EnvironmentSatisfaction HourlyRate JobInvolvement JobLevel
+5467          JobSatisfaction MonthlyIncome MonthlyRate NumCompaniesWorked
+5468          PercentSalaryHike PerformanceRating RelationshipSatisfaction
+5469          StockOptionLevel TotalWorkingYears TrainingTimesLastYear
+5470          WorkLifeBalance YearsInCurrentRole YearsSinceLastPromotion
+5471          YearsWithCurrManager HoursWorkedDaily HoursWokedMonthly BusinessTravel
+5472          Department EducationField JobRole MaritalStatus AgeBucket Int_CurrMgr
+5473          Int_CurrRole Int_TotWork Int_MarStat IncomeBucket Gender OverTime
+5474          DistanceFromHomeBucket EmployeeType;
+5475  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           0.14 seconds
+      cpu time            0.14 seconds
+
+
+5476
+5477  PROC PHREG DATA=in.Modified_ferma2;
+5478      CLASS BusinessTravel Department EducationField JobRole MaritalStatus
+5479          AgeBucket IncomeBucket Gender(ref='Female') OverTime(ref='No')
+5480          DistanceFromHomeBucket EmployeeType;
+5481      MODEL YearsAtCompany*Type(0, 1, 2, 3)=Age DailyRate DistanceFromHome
+5482          Education EnvironmentSatisfaction HourlyRate JobInvolvement JobLevel
+5483          JobSatisfaction MonthlyIncome MonthlyRate NumCompaniesWorked
+5484          PercentSalaryHike PerformanceRating RelationshipSatisfaction
+5485          StockOptionLevel TotalWorkingYears TrainingTimesLastYear
+5486          WorkLifeBalance YearsInCurrentRole YearsSinceLastPromotion
+5487          YearsWithCurrManager HoursWorkedDaily HoursWokedMonthly BusinessTravel
+5488          Department EducationField JobRole MaritalStatus AgeBucket Int_CurrMgr
+5489          Int_CurrRole Int_TotWork Int_MarStat IncomeBucket Gender OverTime
+5490          DistanceFromHomeBucket EmployeeType;
+5491  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.12 seconds
+
+
+5492
+5493  DATA LogRatioTest_DoWeNeedThreeModels;
+5494      Nested=2091.492;
+5495      Fired=91.122;
+5496      Voluntary=828.949;
+5497      Involuntary=44.793;
+5498      Retired=311.036;
+5499      Total=Fired+Voluntary+Involuntary+Retired;
+5500      Diff=Nested - Total;
+5501      P_value=1 - probchi(Diff, 117);
+5502      *39*4 coef. in 4 models - 39 coef. in nested;
+5503  RUN;
+
+NOTE: The data set WORK.LOGRATIOTEST_DOWENEEDTHREEMODELS has 1 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+
+
+5504
+5505  PROC PRINT DATA=LogRatioTest_DoWeNeedThreeModels;
+5506      FORMAT P_Value 5.3;
+5507  RUN;
+
+NOTE: There were 1 observations read from the data set WORK.LOGRATIOTEST_DOWENEEDTHREEMODELS.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+
+
+5508
+5509
+5510
+5511
+5512  /**************** Creating Models ******************/
+5513
+5514
+5515  /* -----------------------------------Combined
+5515! Model------------------------------------------------ */
+5516  PROC PHREG DATA = in.Modified_ferma2;
+5517      WHERE YearsAtCompany > 1;
+5518      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5518! IncomeBucket Gender(ref = 'Female')
+5519       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5520      MODEL YearsAtCompany*Type(0) = Age  DailyRate   DistanceFromHome Education
+5520! EnvironmentSatisfaction HourlyRate
+5521      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5521! PercentSalaryHike
+5522      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5522! TrainingTimesLastYear   WorkLifeBalance
+5523      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager YearsBonusRewarded_cal
+5523! BonusRewardRatio_cal HoursWorkedDaily
+5524      PreviousYearBonus HoursWokedMonthly BusinessTravel Department EducationField  JobRole
+5524! MaritalStatus  AgeBucket
+5525      IncomeBucket Gender OverTime DistanceFromHomeBucket EmployeeType / TIES=EFRON
+5525! SELECTION=backward SLSTAY=0.05;
+5526      ARRAY bonus_(*) bonus_1-bonus_40;
+5527      PreviousYearBonus = bonus_[YearsAtCompany - 1];
+5528          YearsBonusRewarded_cal = sum(of bonus_1 - bonus_40);
+5529          BonusRewardRatio_cal = YearsBonusRewarded_cal/YearsAtCompany;
+5530  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 0.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 1.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 2.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 3.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 4.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 18.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           2.91 seconds
+      cpu time            2.89 seconds
+
+
+5531
+5532  /* Assessment of Non-Proportionality */
+5533  PROC PHREG DATA = in.Modified_ferma2 PLOTS=SURVIVAL;
+5534      WHERE YearsAtCompany > 1;
+5535      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5535! IncomeBucket Gender(ref = 'Female')
+5536       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5537      MODEL YearsAtCompany*Type(0,2,3,1) = Age  DailyRate DistanceFromHome Education
+5537! EnvironmentSatisfaction HourlyRate
+5538      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5538! PercentSalaryHike
+5539      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5539! TrainingTimesLastYear   WorkLifeBalance
+5540      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager HoursWorkedDaily
+5541      HoursWokedMonthly BusinessTravel Department EducationField  JobRole MaritalStatus
+5541! AgeBucket
+5542      IncomeBucket Gender OverTime DistanceFromHomeBucket EmployeeType / TIES=EFRON
+5542! SELECTION=backward SLSTAY=0.05;
+5543      ASSESS PH / RESAMPLE ;
+5544  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 0.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 1.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 2.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 3.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 4.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 18.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 19.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 20.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 21.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 22.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 23.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 24.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 25.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 26.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 27.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           6.97 seconds
+      cpu time            4.60 seconds
+
+
+5545
+5546
+5547
+5548  /* Testing Proportionality assumption using ASSESS by not including time-dependent
+5548! covariates */
+5549  PROC PHREG DATA = in.Modified_ferma2 PLOTS=SURVIVAL;
+5550      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5550! IncomeBucket Gender(ref = 'Female')
+5551       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5552      MODEL YearsAtCompany*Type(0) = Age  DailyRate   DistanceFromHome Education
+5552! EnvironmentSatisfaction HourlyRate
+5553      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5553! PercentSalaryHike
+5554      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5554! TrainingTimesLastYear   WorkLifeBalance
+5555      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager HoursWorkedDaily
+5556      HoursWokedMonthly BusinessTravel Department EducationField  JobRole MaritalStatus
+5556! AgeBucket
+5557      IncomeBucket Gender OverTime DistanceFromHomeBucket EmployeeType / TIES=EFRON
+5557! SELECTION=backward SLSTAY=0.05;
+5558      ASSESS PH/ RESAMPLE;
+5559  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 0.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 1.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 2.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 3.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 4.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 18.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           3:44.40
+      cpu time            3:36.62
+
+
+5560
+5561  DATA in.Modified_ferma2;
+5562  SET in.Modified_ferma2;
+5563  IF MaritalStatus = "Divorce" THEN MaritalStatus_LE=1; ELSE IF MaritalStatus = "Single" THEN
+5563! MaritalStatus_LE=2 ;
+5564  ELSE MaritalStatus_LE=3;
+5565  RUN;
+
+NOTE: There were 1470 observations read from the data set IN.MODIFIED_FERMA2.
+NOTE: The data set IN.MODIFIED_FERMA2 has 1470 observations and 96 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.03 seconds
+
+
+5566
+5567
+5568  /* Adding Interaction variables */
+5569  PROC PHREG DATA = in.Modified_ferma2;
+5570      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5570! IncomeBucket Gender(ref = 'Female')
+5571       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5572      MODEL YearsAtCompany*Type(0) = Age  DailyRate   DistanceFromHome Education
+5572! EnvironmentSatisfaction HourlyRate
+5573      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5573! PercentSalaryHike
+5574      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5574! TrainingTimesLastYear   WorkLifeBalance
+5575      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager HoursWorkedDaily
+5576      HoursWokedMonthly BusinessTravel Department EducationField  JobRole MaritalStatus
+5576! AgeBucket Int_CurrMgr Int_CurrRole
+5577      Int_TotWork Int_MarStat IncomeBucket Gender OverTime DistanceFromHomeBucket EmployeeType
+5577!  / TIES=EFRON SELECTION=backward SLSTAY=0.05;
+5578      Int_CurrMgr =   YearsWithCurrManager * YearsAtCompany;
+5579      Int_CurrRole = YearsInCurrentRole * YearsAtCompany;
+5580      Int_TotWork = TotalWorkingYears * YearsAtCompany;
+5581      Int_MarStat = MaritalStatus_LE * YearsAtCompany;
+5582  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 0.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 1.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 2.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 3.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 4.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           3.95 seconds
+      cpu time            3.92 seconds
+
+
+5583
+5584
+5585  /* Adding variables which caused non-proportianlity into the STRATA statement */
+5586  PROC PHREG DATA = in.Modified_ferma2;
+5587      WHERE YearsAtCompany > 1;
+5588      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5588! IncomeBucket Gender(ref = 'Female')
+5589       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5590      MODEL YearsAtCompany*Type(0) = Age  DailyRate   DistanceFromHome Education
+5590! EnvironmentSatisfaction HourlyRate
+5591      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5591! PercentSalaryHike
+5592      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5592! TrainingTimesLastYear   WorkLifeBalance
+5593      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager HoursWorkedDaily
+5594      HoursWokedMonthly BusinessTravel Department EducationField  JobRole MaritalStatus
+5594! AgeBucket IncomeBucket Gender
+5595      OverTime DistanceFromHomeBucket EmployeeType PreviousYearBonus YearsBonusRewarded_cal
+5595! BonusRewardRatio_cal / TIES=EFRON
+5596      SELECTION=backward SLSTAY=0.05;
+5597      STRATA YearsInCurrentRole YearsWithCurrManager TotalWorkingYears MaritalStatus;
+5598      ARRAY bonus_(*) bonus_1-bonus_40;
+5599      PreviousYearBonus = bonus_[YearsAtCompany - 1];
+5600          YearsBonusRewarded_cal = sum(of bonus_1 - bonus_40);
+5601          BonusRewardRatio_cal = YearsBonusRewarded_cal/YearsAtCompany;
+5602  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 0.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 18.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 19.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 20.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 21.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 22.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 23.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 24.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 25.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 26.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 27.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 28.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           1.05 seconds
+      cpu time            1.03 seconds
+
+
+5603
+5604
+5605
+5606
+5607  /* Adding variables which caused non-proportianlity into the STRATA statement but with no
+5607! Bonus variables*/
+5608  PROC PHREG DATA = in.Modified_ferma2 ;
+5609      WHERE YearsAtCompany > 1;
+5610      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5610! IncomeBucket Gender(ref = 'Female')
+5611       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5612      MODEL YearsAtCompany*Type(0) = Age  DailyRate   DistanceFromHome Education
+5612! EnvironmentSatisfaction HourlyRate
+5613      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5613! PercentSalaryHike
+5614      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5614! TrainingTimesLastYear   WorkLifeBalance
+5615      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager HoursWorkedDaily
+5616      HoursWokedMonthly BusinessTravel Department EducationField  JobRole MaritalStatus
+5616! AgeBucket IncomeBucket Gender
+5617      OverTime DistanceFromHomeBucket EmployeeType / TIES=EFRON
+5618      SELECTION=backward SLSTAY=0.05;
+5619      STRATA YearsInCurrentRole YearsWithCurrManager TotalWorkingYears MaritalStatus;
+5620  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 0.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 18.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 19.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 20.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 21.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 22.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 23.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 24.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 25.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 26.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           1.36 seconds
+      cpu time            1.26 seconds
+
+
+5621
+5622  /* ---------------------------------------- Separate Models
+5622! ---------------------------------------*/
+5623
+5624  /* Model for Type 1 Turnover (Retirement) */
+5625  PROC PHREG DATA = in.Modified_ferma2;
+5626      WHERE YearsAtCompany > 1;
+5627      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5627! IncomeBucket Gender(ref = 'Female')
+5628       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5629      MODEL YearsAtCompany*Type(0,2,3,4) = Age  DailyRate DistanceFromHome Education
+5629! EnvironmentSatisfaction HourlyRate
+5630      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5630! PercentSalaryHike
+5631      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5631! TrainingTimesLastYear   WorkLifeBalance
+5632      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager YearsBonusRewarded_cal
+5632! BonusRewardRatio_cal HoursWorkedDaily
+5633      PreviousYearBonus HoursWokedMonthly BusinessTravel Department EducationField  JobRole
+5633! MaritalStatus  AgeBucket
+5634      IncomeBucket Gender OverTime DistanceFromHomeBucket EmployeeType / TIES=EFRON
+5634! SELECTION=backward SLSTAY=0.05;
+5635      ARRAY bonus_(*) bonus_1-bonus_40;
+5636      PreviousYearBonus = bonus_[YearsAtCompany - 1];
+5637          YearsBonusRewarded_cal = sum(of bonus_1 - bonus_40);
+5638          BonusRewardRatio_cal = YearsBonusRewarded_cal/YearsAtCompany;
+5639  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 0.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 1.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 2.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 3.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 4.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 18.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 19.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 20.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 21.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 22.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 23.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           11.51 seconds
+      cpu time            11.48 seconds
+
+
+5640
+5641
+5642  /* Assessment of Non-Proportionality */
+5643  PROC PHREG DATA = in.Modified_ferma2 PLOTS=SURVIVAL;
+5644      WHERE YearsAtCompany > 1;
+5645      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5645! IncomeBucket Gender(ref = 'Female')
+5646       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5647      MODEL YearsAtCompany*Type(0,2,3,4) = Age  DailyRate DistanceFromHome Education
+5647! EnvironmentSatisfaction HourlyRate
+5648      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5648! PercentSalaryHike
+5649      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5649! TrainingTimesLastYear   WorkLifeBalance
+5650      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager HoursWorkedDaily
+5651      HoursWokedMonthly BusinessTravel Department EducationField  JobRole MaritalStatus
+5651! AgeBucket
+5652      IncomeBucket Gender OverTime DistanceFromHomeBucket EmployeeType / TIES=EFRON
+5652! SELECTION=backward SLSTAY=0.05;
+5653      ASSESS PH / RESAMPLE ;
+5654  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 0.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 1.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 2.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 3.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 4.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 18.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 19.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 20.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 21.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 22.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 23.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 24.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 25.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 26.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 27.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 28.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 29.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 30.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           4.86 seconds
+      cpu time            3.71 seconds
+
+
+5655
+5656
+5657
+5658  /* Adding Interaction variables and STRATA statement*/
+5659  PROC PHREG DATA = in.Modified_ferma2;
+5660      WHERE YearsAtCompany > 1;
+5661      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5661! IncomeBucket Gender(ref = 'Female')
+5662       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5663      MODEL YearsAtCompany*Type(0,2,3,4) = Age  DailyRate DistanceFromHome Education
+5663! EnvironmentSatisfaction HourlyRate
+5664      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5664! PercentSalaryHike
+5665      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5665! TrainingTimesLastYear   WorkLifeBalance
+5666      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager YearsBonusRewarded_cal
+5666! BonusRewardRatio_cal HoursWorkedDaily
+5667      PreviousYearBonus HoursWokedMonthly BusinessTravel Department EducationField  JobRole
+5667! MaritalStatus  AgeBucket
+5668      IncomeBucket Gender OverTime DistanceFromHomeBucket EmployeeType Int_NumCompaniesWorked
+5668! Int_YearsWithCurrManager
+5669       / TIES=EFRON SELECTION=backward SLSTAY=0.05;
+5670      ARRAY bonus_(*) bonus_1-bonus_40;
+5671      PreviousYearBonus = bonus_[YearsAtCompany - 1];
+5672          YearsBonusRewarded_cal = sum(of bonus_1 - bonus_40);
+5673          BonusRewardRatio_cal = YearsBonusRewarded_cal/YearsAtCompany;
+5674      Int_NumCompaniesWorked = NumCompaniesWorked * YearsAtCompany;
+5675      Int_YearsWithCurrManager = YearsWithCurrManager * YearsAtCompany;
+5676      STRATA BusinessTravel;
+5677  RUN;
+
+WARNING: Convergence for the model in Step 0 was not attained in 25 iterations.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 2.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 3.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 4.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 18.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 19.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 20.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 21.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 22.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 23.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 24.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 25.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 26.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 27.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 28.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 29.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 30.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 31.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           9.79 seconds
+      cpu time            9.73 seconds
+
+
+5678
+5679
+5680  /* Model for Type 2 Turnover (Voluntary Termination) */
+5681  PROC PHREG DATA = in.Modified_ferma2;
+5682      WHERE YearsAtCompany > 1;
+5683      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5683! IncomeBucket Gender(ref = 'Female')
+5684       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5685      MODEL YearsAtCompany*Type(0,1,3,4) = Age  DailyRate DistanceFromHome Education
+5685! EnvironmentSatisfaction HourlyRate
+5686      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5686! PercentSalaryHike
+5687      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5687! TrainingTimesLastYear   WorkLifeBalance
+5688      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager YearsBonusRewarded_cal
+5688! BonusRewardRatio_cal HoursWorkedDaily
+5689      PreviousYearBonus HoursWokedMonthly BusinessTravel Department EducationField  JobRole
+5689! MaritalStatus  AgeBucket
+5690      IncomeBucket Gender OverTime DistanceFromHomeBucket EmployeeType / TIES=EFRON
+5690! SELECTION=backward SLSTAY=0.05;
+5691      ARRAY bonus_(*) bonus_1-bonus_40;
+5692      PreviousYearBonus = bonus_[YearsAtCompany - 1];
+5693          YearsBonusRewarded_cal = sum(of bonus_1 - bonus_40);
+5694          BonusRewardRatio_cal = YearsBonusRewarded_cal/YearsAtCompany;
+5695  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 0.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 1.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 2.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 3.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 4.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 18.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 19.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 20.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 21.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 22.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 23.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 24.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           5.01 seconds
+      cpu time            4.98 seconds
+
+
+5696
+5697
+5698  /* Assessment of Non-Proportionality */
+5699  PROC PHREG DATA = in.Modified_ferma2 PLOTS=SURVIVAL;
+5700      WHERE YearsAtCompany > 1;
+5701      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5701! IncomeBucket Gender(ref = 'Female')
+5702       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5703      MODEL YearsAtCompany*Type(0,1,3,4) = Age  DailyRate DistanceFromHome Education
+5703! EnvironmentSatisfaction HourlyRate
+5704      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5704! PercentSalaryHike
+5705      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5705! TrainingTimesLastYear   WorkLifeBalance
+5706      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager HoursWorkedDaily
+5707      HoursWokedMonthly BusinessTravel Department EducationField  JobRole MaritalStatus
+5707! AgeBucket
+5708      IncomeBucket Gender OverTime DistanceFromHomeBucket EmployeeType / TIES=EFRON
+5708! SELECTION=backward SLSTAY=0.05;
+5709      ASSESS PH / RESAMPLE ;
+5710  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 0.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 1.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 2.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 3.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 4.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 18.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 19.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 20.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 21.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 22.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           19.60 seconds
+      cpu time            15.54 seconds
+
+
+5711
+5712  /* Adding Interaction variables and STRATA statement */
+5713  PROC PHREG DATA = in.Modified_ferma2;
+5714      WHERE YearsAtCompany > 1;
+5715      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5715! IncomeBucket Gender(ref = 'Female')
+5716       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5717      MODEL YearsAtCompany*Type(0,1,3,4) = Age  DailyRate DistanceFromHome Education
+5717! EnvironmentSatisfaction HourlyRate
+5718      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5718! PercentSalaryHike
+5719      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5719! TrainingTimesLastYear   WorkLifeBalance
+5720      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager YearsBonusRewarded_cal
+5720! BonusRewardRatio_cal HoursWorkedDaily
+5721      PreviousYearBonus HoursWokedMonthly BusinessTravel Department EducationField  JobRole
+5721! MaritalStatus  AgeBucket
+5722      IncomeBucket Gender OverTime DistanceFromHomeBucket EmployeeType / TIES=EFRON
+5722! SELECTION=backward SLSTAY=0.05;
+5723      ARRAY bonus_(*) bonus_1-bonus_40;
+5724      PreviousYearBonus = bonus_[YearsAtCompany - 1];
+5725          YearsBonusRewarded_cal = sum(of bonus_1 - bonus_40);
+5726          BonusRewardRatio_cal = YearsBonusRewarded_cal/YearsAtCompany;
+5727          Int_Age = Age * YearsAtCompany;
+5728          Int_HoursWorkedDaily = HoursWorkedDaily * YearsAtCompany;
+5729      STRATA  JobRole;
+5730  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 0.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 2.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 3.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 4.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 18.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 19.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 20.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 21.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 22.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 23.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 24.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           2.34 seconds
+      cpu time            2.29 seconds
+
+
+5731
+5732
+5733  /* Model for Type 3 Turnover (InVoluntary Termination) */
+5734  PROC PHREG DATA = in.Modified_ferma2;
+5735      WHERE YearsAtCompany > 1;
+5736      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5736! IncomeBucket Gender(ref = 'Female')
+5737       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5738      MODEL YearsAtCompany*Type(0,1,2,4) = Age  DailyRate DistanceFromHome Education
+5738! EnvironmentSatisfaction HourlyRate
+5739      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5739! PercentSalaryHike
+5740      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5740! TrainingTimesLastYear   WorkLifeBalance
+5741      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager YearsBonusRewarded_cal
+5741! BonusRewardRatio_cal HoursWorkedDaily
+5742      PreviousYearBonus HoursWokedMonthly BusinessTravel Department EducationField  JobRole
+5742! MaritalStatus  AgeBucket
+5743      IncomeBucket Gender OverTime DistanceFromHomeBucket EmployeeType / TIES=EFRON
+5743! SELECTION=backward SLSTAY=0.05;
+5744      ARRAY bonus_(*) bonus_1-bonus_40;
+5745      PreviousYearBonus = bonus_[YearsAtCompany - 1];
+5746          YearsBonusRewarded_cal = sum(of bonus_1 - bonus_40);
+5747          BonusRewardRatio_cal = YearsBonusRewarded_cal/YearsAtCompany;
+5748  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 0.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 1.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 2.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 3.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 4.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 18.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 19.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 20.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 21.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 22.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 23.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 24.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 25.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 26.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 27.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 28.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 29.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 30.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 31.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 32.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 33.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           15.79 seconds
+      cpu time            15.75 seconds
+
+
+5749
+5750
+5751  /* Assessment of Non-Proportionality */
+5752  PROC PHREG DATA = in.Modified_ferma2 PLOTS=SURVIVAL;
+5753      WHERE YearsAtCompany > 1;
+5754      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5754! IncomeBucket Gender(ref = 'Female')
+5755       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5756      MODEL YearsAtCompany*Type(0,2,1,4) = Age  DailyRate DistanceFromHome Education
+5756! EnvironmentSatisfaction HourlyRate
+5757      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5757! PercentSalaryHike
+5758      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5758! TrainingTimesLastYear   WorkLifeBalance
+5759      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager HoursWorkedDaily
+5760      HoursWokedMonthly BusinessTravel Department EducationField  JobRole MaritalStatus
+5760! AgeBucket
+5761      IncomeBucket Gender OverTime DistanceFromHomeBucket EmployeeType / TIES=EFRON
+5761! SELECTION=backward SLSTAY=0.05;
+5762      ASSESS PH / RESAMPLE ;
+5763  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 0.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 1.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 2.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 3.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 4.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 18.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 19.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 20.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 21.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 22.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 23.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 24.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 25.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 26.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 27.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 28.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 29.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 30.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           6.11 seconds
+      cpu time            4.46 seconds
+
+
+5764
+5765
+5766  /* Model for Type 4 Turnover (Fired) */
+5767  PROC PHREG DATA = in.Modified_ferma2;
+5768      WHERE YearsAtCompany > 1;
+5769      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5769! IncomeBucket Gender(ref = 'Female')
+5770       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5771      MODEL YearsAtCompany*Type(0,1,2,3) = Age  DailyRate DistanceFromHome Education
+5771! EnvironmentSatisfaction HourlyRate
+5772      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5772! PercentSalaryHike
+5773      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5773! TrainingTimesLastYear   WorkLifeBalance
+5774      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager YearsBonusRewarded_cal
+5774! BonusRewardRatio_cal HoursWorkedDaily
+5775      PreviousYearBonus HoursWokedMonthly BusinessTravel Department EducationField  JobRole
+5775! MaritalStatus  AgeBucket
+5776      IncomeBucket Gender OverTime DistanceFromHomeBucket EmployeeType / TIES=EFRON
+5776! SELECTION=backward SLSTAY=0.05;
+5777      ARRAY bonus_(*) bonus_1-bonus_40;
+5778      PreviousYearBonus = bonus_[YearsAtCompany - 1];
+5779          YearsBonusRewarded_cal = sum(of bonus_1 - bonus_40);
+5780          BonusRewardRatio_cal = YearsBonusRewarded_cal/YearsAtCompany;
+5781  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 0.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 1.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 2.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 3.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 4.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 18.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 19.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 20.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 21.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 22.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 23.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 24.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 25.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 26.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 27.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 28.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 29.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 30.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           7.22 seconds
+      cpu time            7.10 seconds
+
+
+5782
+5783  /* Assessment of Non-Proportionality */
+5784  PROC PHREG DATA = in.Modified_ferma2 PLOTS=SURVIVAL;
+5785      WHERE YearsAtCompany > 1;
+5786      CLASS BusinessTravel Department EducationField  JobRole MaritalStatus  AgeBucket
+5786! IncomeBucket Gender(ref = 'Female')
+5787       OverTime(ref = 'No') DistanceFromHomeBucket EmployeeType ;
+5788      MODEL YearsAtCompany*Type(0,1,2,3) = Age  DailyRate DistanceFromHome Education
+5788! EnvironmentSatisfaction HourlyRate
+5789      JobInvolvement  JobLevel JobSatisfaction MonthlyIncome  MonthlyRate NumCompaniesWorked
+5789! PercentSalaryHike
+5790      PerformanceRating RelationshipSatisfaction StockOptionLevel TotalWorkingYears
+5790! TrainingTimesLastYear   WorkLifeBalance
+5791      YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager HoursWorkedDaily
+5792      HoursWokedMonthly BusinessTravel Department EducationField  JobRole MaritalStatus
+5792! AgeBucket
+5793      IncomeBucket Gender OverTime DistanceFromHomeBucket EmployeeType / TIES=EFRON
+5793! SELECTION=backward SLSTAY=0.05;
+5794      ASSESS PH / RESAMPLE ;
+5795  RUN;
+
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 0.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 1.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 2.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 3.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 4.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 5.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 6.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 7.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 8.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 9.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 10.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 11.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 12.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 13.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 14.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 15.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 16.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 17.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 18.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 19.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 20.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 21.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 22.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 23.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 24.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 25.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 26.
+NOTE: Convergence criterion (GCONV=1E-8) satisfied for the model in Step 27.
+NOTE: PROCEDURE PHREG used (Total process time):
+      real time           6.91 seconds
+      cpu time            4.61 seconds
+
